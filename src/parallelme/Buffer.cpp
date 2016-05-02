@@ -51,17 +51,16 @@ void Buffer::copyFrom(std::shared_ptr<Device> device, jobject bitmap) {
 }
 
 void Buffer::copyFrom(std::shared_ptr<Device> device, void *host) {
-    if(device != _device)
-        createMemoryObject(device, false);
-
+    auto mem = clMem(device, false);
     int err;
-    void *data = clEnqueueMapBuffer(_device->clQueue(), _mem, CL_TRUE, CL_MAP_WRITE,
-            0, size(), 0, nullptr, nullptr, &err);
+
+    void *data = clEnqueueMapBuffer(_device->clQueue(), mem, CL_TRUE,
+            CL_MAP_WRITE, 0, _size, 0, nullptr, nullptr, &err);
     if(err < 0)
         throw BufferCopyError(std::to_string(err));
 
     memcpy(data, host, _size);
-    clEnqueueUnmapMemObject(_device->clQueue(), _mem, data, 0, nullptr, nullptr);
+    clEnqueueUnmapMemObject(_device->clQueue(), mem, data, 0, nullptr, nullptr);
 }
 
 void Buffer::copyTo(JNIEnv *env, jarray array) {
@@ -86,20 +85,21 @@ void Buffer::copyTo(JNIEnv *env, jobject bitmap) {
 }
 
 void Buffer::copyTo(void *host) {
+    auto mem = clMem(_device);
     int err;
 
-    void *data = clEnqueueMapBuffer(_device->clQueue(), _mem, CL_TRUE, CL_MAP_READ,
-            0, size(), 0, nullptr, nullptr, &err);
+    void *data = clEnqueueMapBuffer(_device->clQueue(), mem, CL_TRUE,
+            CL_MAP_READ, 0, _size, 0, nullptr, nullptr, &err);
     if(err < 0)
         throw BufferCopyError(std::to_string(err));
 
     memcpy(host, data, _size);
-    clEnqueueUnmapMemObject(_device->clQueue(), _mem, data, 0, nullptr, nullptr);
+    clEnqueueUnmapMemObject(_device->clQueue(), mem, data, 0, nullptr, nullptr);
 }
 
-_cl_mem *Buffer::clMem(std::shared_ptr<Device> device) {
+_cl_mem *Buffer::clMem(std::shared_ptr<Device> device, bool copyOld) {
     if(_device != device)
-        createMemoryObject(device, true);
+        createMemoryObject(device, copyOld);
 
     return _mem;
 }

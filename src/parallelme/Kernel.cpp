@@ -31,9 +31,9 @@ Kernel::~Kernel() {
 }
 
 void Kernel::run() {
-    size_t offset[] = { 0 };
-    size_t workSize[] = { _workSize };
-    int err = clEnqueueNDRangeKernel(_device->clQueue(), _clKernel, 1, offset,
+    size_t offset[] = { 0, 0, 0 };
+    size_t workSize[] = { _xDim, _yDim, _zDim };
+    int err = clEnqueueNDRangeKernel(_device->clQueue(), _clKernel, 3, offset,
             workSize, nullptr, 0, nullptr, nullptr);
     if(err < 0)
         throw KernelExecutionError(std::to_string(err));

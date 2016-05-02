@@ -72,10 +72,14 @@ public:
 
     /**
      * Sets the range of execution.
-     * @param workSize The number of work items.
+     * @param xDim The number of items in the x dimension.
+     * @param yDim The number of items in the y dimension.
+     * @param zDim The number of items in the z dimension.
      */
-    inline Kernel *setWorkSize(size_t workSize) {
-        _workSize = workSize;
+    inline Kernel *setWorkSize(size_t xDim, size_t yDim = 1, size_t zDim = 1) {
+        _xDim = xDim;
+        _yDim = yDim;
+        _zDim = zDim;
 
         return this;
     }
@@ -96,9 +100,19 @@ public:
         return setPrimitiveArg(id, sizeof(primitive), &primitive);
     }
 
-    /// Returns the the kernel work size.
-    inline size_t workSize() {
-        return _workSize;
+    /// Returns the the kernel's x dimension work items.
+    inline size_t xDim() {
+        return _xDim;
+    }
+
+    /// Returns the the kernel's y dimension work items.
+    inline size_t yDim() {
+        return _yDim;
+    }
+
+    /// Returns the the kernel's z dimension work items.
+    inline size_t zDim() {
+        return _zDim;
     }
 
 private:
@@ -110,7 +124,7 @@ private:
 
     std::shared_ptr<Device> _device;
     _cl_kernel *_clKernel;
-    size_t _workSize;
+    size_t _xDim, _yDim, _zDim;
 };
 
 }

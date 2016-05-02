@@ -122,8 +122,10 @@ public:
      * @internal
      * Returns the OpenCL memory object. Creates it if it wasn't created yet.
      * This should only be called by the Kernel class.
+     * If copyOld is set to false, if a memory object already existed, it won't
+     * be copied over to the new memory object.
      */
-    _cl_mem *clMem(std::shared_ptr<Device> device);
+    _cl_mem *clMem(std::shared_ptr<Device> device, bool copyOld = true);
 
 private:
     /**
