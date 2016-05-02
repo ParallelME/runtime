@@ -15,4 +15,4 @@
 #include "Task.hpp"
 #include "Kernel.hpp"
 
-#endif // !PARALLELME_HPARALLELME_HPP
+#endif // !PARALLELME_PARALLELME_HPP
