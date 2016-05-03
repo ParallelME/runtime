@@ -69,7 +69,7 @@ public:
      * First Come First Served.
      */
     Runtime(JavaVM *jvm = nullptr,
-            std::shared_ptr<Scheduler> &&sched = std::make_unique<SchedulerFCFS>())
+            std::shared_ptr<Scheduler> &&sched = std::make_shared<SchedulerFCFS>())
             : _scheduler(std::move(sched)) {
         loadDevices();
         startWorkers(jvm);

@@ -8,13 +8,15 @@
 
 #include <parallelme/Buffer.hpp>
 #include <parallelme/Device.hpp>
+#include <parallelme/Runtime.hpp>
 #include <string>
 #include <android/bitmap.h>
 #include <jni.h>
 #include "dynloader/dynLoader.h"
 using namespace parallelme;
 
-Buffer::Buffer(size_t size) : _size(size), _mem(nullptr), _device(nullptr) {
+Buffer::Buffer(size_t size) : _size(size), _mem(nullptr), _device(nullptr),
+        _copyPtr(nullptr), _copyArray(nullptr), _copyBitmap(nullptr) {
 
 }
 
@@ -25,45 +27,28 @@ Buffer::~Buffer() {
     }
 }
 
-void Buffer::copyFrom(std::shared_ptr<Device> device, jarray array) {
-    JNIEnv *env = device->JNIEnv();
+void Buffer::copyFromJNI(JNIEnv *env, jarray array) {
+    releaseCopySources(env);
 
-    void *ptr = env->GetPrimitiveArrayCritical(array, nullptr);
-    if(!ptr)
-        throw BufferCopyError("Failed to get primitive array.");
-
-    copyFrom(device, ptr);
-
-    env->ReleasePrimitiveArrayCritical(array, ptr, 0);
+    _copyArray = (jarray) env->NewGlobalRef(array);
+    if(!_copyArray)
+        throw BufferCopyError("Failed to create a new jarray global ref.");
 }
 
-void Buffer::copyFrom(std::shared_ptr<Device> device, jobject bitmap) {
-    JNIEnv *env = device->JNIEnv();
+void Buffer::copyFromJNI(JNIEnv *env, jobject bitmap) {
+    releaseCopySources(env);
 
-    void *ptr;
-    int err = AndroidBitmap_lockPixels(env, bitmap, &ptr);
-    if(err < 0)
-        throw BufferCopyError("Failed to lock android bitmap's pixels.");
-
-    copyFrom(device, ptr);
-
-    AndroidBitmap_unlockPixels(env, bitmap);
+    _copyBitmap = env->NewGlobalRef(bitmap);
+    if(!_copyBitmap)
+        throw BufferCopyError("Failed to create a new bitmap global ref.");
 }
 
-void Buffer::copyFrom(std::shared_ptr<Device> device, void *host) {
-    auto mem = clMem(device, false);
-    int err;
-
-    void *data = clEnqueueMapBuffer(_device->clQueue(), mem, CL_TRUE,
-            CL_MAP_WRITE, 0, _size, 0, nullptr, nullptr, &err);
-    if(err < 0)
-        throw BufferCopyError(std::to_string(err));
-
-    memcpy(data, host, _size);
-    clEnqueueUnmapMemObject(_device->clQueue(), mem, data, 0, nullptr, nullptr);
+void Buffer::copyFrom(void *host) {
+    // Other copy sources will be released when calling makeCopy().
+    _copyPtr = host;
 }
 
-void Buffer::copyTo(JNIEnv *env, jarray array) {
+void Buffer::copyToJNI(JNIEnv *env, jarray array) {
     void *ptr = env->GetPrimitiveArrayCritical(array, nullptr);
     if(!ptr)
         throw BufferCopyError("Failed to get primitive array.");
@@ -73,7 +58,7 @@ void Buffer::copyTo(JNIEnv *env, jarray array) {
     env->ReleasePrimitiveArrayCritical(array, ptr, 0);
 }
 
-void Buffer::copyTo(JNIEnv *env, jobject bitmap) {
+void Buffer::copyToJNI(JNIEnv *env, jobject bitmap) {
     void *ptr;
     int err = AndroidBitmap_lockPixels(env, bitmap, &ptr);
     if(err < 0)
@@ -97,9 +82,11 @@ void Buffer::copyTo(void *host) {
     clEnqueueUnmapMemObject(_device->clQueue(), mem, data, 0, nullptr, nullptr);
 }
 
-_cl_mem *Buffer::clMem(std::shared_ptr<Device> device, bool copyOld) {
+_cl_mem *Buffer::clMem(std::shared_ptr<Device> device) {
     if(_device != device)
-        createMemoryObject(device, copyOld);
+        createMemoryObject(device, !hasCopySource());
+    if(hasCopySource())
+        makeCopy(_device->JNIEnv());
 
     return _mem;
 }
@@ -135,3 +122,57 @@ void Buffer::createMemoryObject(std::shared_ptr<Device> newDevice, bool copyOld)
     _device = newDevice;
 }
 
+void Buffer::releaseCopySources(JNIEnv *env) {
+    if(_copyPtr) {
+        _copyPtr = nullptr;
+    }
+    if(_copyArray) {
+        env->DeleteGlobalRef(_copyArray);
+        _copyArray = nullptr;
+    }
+    if(_copyBitmap) {
+        env->DeleteGlobalRef(_copyBitmap);
+        _copyBitmap = nullptr;
+    }
+}
+
+void Buffer::makeCopy(JNIEnv *env) {
+    // _copyPtr has preference because copyFrom() doesn't call releaseCopySources(),
+    // so _copyArray and _copyBitmap may still have references to clear.
+    if(_copyPtr) {
+        makeCopyFrom(_copyPtr);
+    }
+    else if(_copyArray) {
+        void *ptr = env->GetPrimitiveArrayCritical(_copyArray, nullptr);
+        if(!ptr)
+            throw BufferCopyError("Failed to get primitive array.");
+
+        makeCopyFrom(ptr);
+
+        env->ReleasePrimitiveArrayCritical(_copyArray, ptr, 0);
+    }
+    else { // _copyBitmap
+        void *ptr;
+        int err = AndroidBitmap_lockPixels(env, _copyBitmap, &ptr);
+        if(err < 0)
+            throw BufferCopyError("Failed to lock android bitmap's pixels.");
+
+        makeCopyFrom(ptr);
+
+        AndroidBitmap_unlockPixels(env, _copyBitmap);
+    }
+
+    releaseCopySources(env);
+}
+
+void Buffer::makeCopyFrom(void *host) {
+    int err;
+
+    void *data = clEnqueueMapBuffer(_device->clQueue(), _mem, CL_TRUE,
+            CL_MAP_WRITE, 0, _size, 0, nullptr, nullptr, &err);
+    if(err < 0)
+        throw BufferCopyError(std::to_string(err));
+
+    memcpy(data, host, _size);
+    clEnqueueUnmapMemObject(_device->clQueue(), _mem, data, 0, nullptr, nullptr);
+}
