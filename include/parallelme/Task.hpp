@@ -40,6 +40,8 @@ class InvalidKernelError : public std::runtime_error {
 /**
  * Represents a single task to be executed by the target device. Can be
  * composed of multiple kernels.
+ *
+ * @author Renato Utsch, Guilherme de Andrade
  */
 class Task {
 

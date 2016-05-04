@@ -31,6 +31,8 @@ class ProgramCompilationError : public std::runtime_error {
 /**
  * The Program class stores the program objects from each device the source
  * was able to compile to.
+ *
+ * @author Renato Utsch
  */
 class Program {
     std::map<unsigned, _cl_program *> _programs;    /// Maps device id to program.

@@ -47,6 +47,8 @@ class KernelArgError : public std::runtime_error {
 
 /**
  * This class represents a Task's kernel.
+ *
+ * @author Renato Utsch
  */
 class Kernel {
     friend class Task;

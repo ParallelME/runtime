@@ -18,6 +18,8 @@ namespace parallelme {
 /**
  * An implementation of the Performance Aware Multi-queue Scheduling
  * strategy for the ParallelME Runtime.
+ *
+ * @author Guilherme de Andrade, Renato Utsch
  */
 class SchedulerPAMS : public Scheduler {
     struct TaskInfo;

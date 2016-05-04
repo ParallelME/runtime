@@ -18,6 +18,8 @@ namespace parallelme {
 /**
  * An implementation of the Heterogeneous Earliest Finish Time scheduling
  * strategy for the ParallelME Runtime.
+ *
+ * @author Guilherme de Andrade, Renato Utsch
  */
 class SchedulerHEFT : public Scheduler {
     std::list<std::unique_ptr<Task>> _cpuTaskList;

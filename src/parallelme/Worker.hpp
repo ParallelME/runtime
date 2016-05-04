@@ -21,6 +21,12 @@
 namespace parallelme {
 class Device;
 
+
+/**
+ * This class manages a threads that executes tasks supplied by the scheduler.
+ *
+ * @author Renato Utsch
+ */
 class Worker {
     std::shared_ptr<Device> _device;
     std::mutex _mutex;

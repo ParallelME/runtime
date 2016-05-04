@@ -20,6 +20,8 @@ class Device;
  * scheduling policies implemented by the Runtime. New scheduling policies can
  * also be created by deriving this class and using the derived class when
  * constructing a Runtime class instance.
+ *
+ * @author Renato Utsch
  */
 class Scheduler {
 

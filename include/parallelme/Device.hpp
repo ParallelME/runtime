@@ -42,6 +42,8 @@ class DeviceFinishError : public std::runtime_error {
  * the Runtime system. Each different programming platform creates one
  * Device class for each execution device present in their system, and the
  * Runtime class registers all these devices to be used on execution.
+ *
+ * @author Renato Utsch
  */
 class Device {
 

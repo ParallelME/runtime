@@ -18,6 +18,8 @@ namespace parallelme {
 /**
  * An implementation of the First Come First Served scheduling strategy for
  * the ParallelME Runtime.
+ *
+ * @author Guilherme de Andrade, Renato Utsch
  */
 class SchedulerFCFS : public Scheduler {
     std::list<std::unique_ptr<Task>> _taskList;

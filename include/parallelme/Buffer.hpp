@@ -42,6 +42,8 @@ class BufferCopyError : public std::runtime_error {
  * Please pay attention to the saveCopyFrom functions: they don't make a
  * copy on the spot, instead saving a reference to the array, buffer or pointer
  * and only copying right before execution.
+ *
+ * @author Renato Utsch
  */
 class Buffer {
 

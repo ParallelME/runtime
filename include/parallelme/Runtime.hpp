@@ -48,6 +48,8 @@ class RuntimeExecutionError : public std::runtime_error {
  * constructor, along with changing the scheduler policy
  * to one different to the default (FCFS). To make the runtime run in an
  * Android device, at least the JavaVM pointer must be given.
+ *
+ * @author Renato Utsch
  */
 class Runtime {
     std::vector<std::shared_ptr<Device>> _devices;      /// Vector of devices.
