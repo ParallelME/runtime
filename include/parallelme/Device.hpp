@@ -19,6 +19,8 @@ struct _cl_command_queue;
 
 namespace parallelme {
 
+class Worker;
+
 /**
  * Exception thrown if the device failed to construct and initialize.
  * The error message can be accessed through the what() function.
@@ -108,15 +110,16 @@ public:
          return _clQueue;
     }
 
+private:
+    friend class Worker;
+
     /**
-     * @internal
      * Sets the JNIEnv of the device. Only the Worker class should call this.
      */
     inline void setJNIEnv(_JNIEnv *env) {
         _env = env;
     }
 
-private:
     /// Generates a new device ID, starting from 0.
     static inline unsigned genID() {
         static unsigned newID = 0;
