@@ -19,6 +19,7 @@ struct _cl_mem;
 namespace parallelme {
 class Device;
 class Worker;
+class Kernel;
 
 /**
  * Exception thrown if the buffer failed to construct and initialize.
@@ -153,14 +154,15 @@ public:
         return _size;
     }
 
+private:
+    friend class Kernel;
+
     /**
-     * @internal
      * Returns the OpenCL memory object. Creates it if it wasn't created yet.
      * This should only be called by the Kernel class.
      */
     _cl_mem *clMem(std::shared_ptr<Device> device);
 
-private:
     /**
      * Creates an OpenCL memory object on the given device or makes a copy to
      * a memory object on the new device if one already exists and the flag
