@@ -16,7 +16,7 @@
 #   define PROGRAM_NAME "ParallelME Runtime"
 #endif
 
-#ifdef RUNTIME_ANDROID // use __android_log_print
+#ifdef PARALLELME_ANDROID // use __android_log_print
 #   include <android/log.h>
 #   define ERROR_PRINTER_FUNC(...) __android_log_print(ANDROID_LOG_ERROR, PROGRAM_NAME, __VA_ARGS__)
 #else // use fprintf
