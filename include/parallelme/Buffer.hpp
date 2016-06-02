@@ -1,4 +1,4 @@
-/**                                               _    __ ____
+/*                                                _    __ ____
  *   _ __  ___ _____   ___   __  __   ___ __     / |  / /  __/
  *  |  _ \/ _ |  _  | / _ | / / / /  / __/ /    /  | / / /__
  *  |  __/ __ |  ___|/ __ |/ /_/ /__/ __/ /__  / / v  / /__
@@ -42,7 +42,7 @@ class BufferCopyError : public std::runtime_error {
  * have any data saved as a reference or inside the device's buffer.
  * The error message can be accessed through the what() function.
  */
-class EmptyBufferError : public std::runtime_error {
+class BufferEmptyError : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
