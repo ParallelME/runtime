@@ -14,4 +14,4 @@ Renato Utsch and/or Guilherme, please write this section.
 
 ## Detailed information
 
-If you need further information about ParallelME Run-time, please refer to [ParallelME Run-time Technical Report](https://parallelme.github.io/docs/ParallelME_Runtime_Technical_Report.pdf) or [ParallelME Run-time User Manual](https://parallelme.github.io/docs/ParallelME_Runtime_User_Manual.pdf).
+If you need detailed information about ParallelME Run-time, please refer to [ParallelME Run-time Technical Report](https://parallelme.github.io/docs/ParallelME_Runtime_Technical_Report.pdf) or [ParallelME Run-time User Manual](https://parallelme.github.io/docs/ParallelME_Runtime_User_Manual.pdf).
